@@ -147,16 +147,18 @@ def update_request(mip, pkg_size):
     return cs
 
 def update_check_response(mip, sock):
+    time.sleep(2)
     try:
         resp = sock.recv(1024)
         unpack_resp = unpack('3s', resp[8:11])
         update_ret = unpack_resp[0].decode()
+        print(update_ret)
         if update_ret == '200':
             print('Update {} Success'.format(mip))
         else:
-            print('Update {} Failed'.format(mip))
+            print('Update {} Failed!'.format(mip))
     except:
-        print('Update {} Failed'.format(mip))
+        print('Update {} Failed!!!'.format(mip))
     finally:
         sock.close()
 
@@ -164,11 +166,13 @@ def update_transfer_package(mip, pkg):
     cs = socket(AF_INET, SOCK_STREAM)
     cs.settimeout(1)
     cs.connect((mip, 2425))
+    packsize = 1024 #64*1024
     with open(pkg, 'rb') as f:
-        l = f.read(64*1024)
+        l = f.read(packsize)
         while l:
             cs.send(l)
-            l = f.read(64*1024)
+            #print("send data")
+            l = f.read(packsize)
     cs.close()
 
 def update_one_miner(mip, pkg, pkg_size):
